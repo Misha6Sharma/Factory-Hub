@@ -1,0 +1,10 @@
+{
+  "projectId": "digital-factory-storefront",
+  "appId": "1:483180258268:web:f3da09632cf4b2e25c2519",
+  "apiKey": "AIzaSyB3ONuPp-wrhvzKNqjd3dGQmFRZsIkVkgI",
+  "authDomain": "digital-factory-storefront.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "digital-factory-storefront.firebasestorage.app",
+  "messagingSenderId": "483180258268",
+  "measurementId": "G-J4BCVFRP96"
+}

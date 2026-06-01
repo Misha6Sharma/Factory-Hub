@@ -1,0 +1,6 @@
+{
+  "name": "Digital Factory Storefront",
+  "description": "B2B catalog and order management platform for manufacturers to seamlessly showcase products, receive RFQs, and manage bulk orders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

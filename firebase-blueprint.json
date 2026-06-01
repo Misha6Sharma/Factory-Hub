@@ -1,0 +1,176 @@
+{
+  "entities": {
+    "FactoryProfile": {
+      "title": "FactoryProfile",
+      "description": "Information about the manufacturing unit/factory",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "gstNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "logo": { "type": "string" },
+        "description": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" }
+      },
+      "required": ["id", "name", "category", "gstNumber", "address", "logo", "description"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A manufactured article available in the catalog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "articleCode": { "type": "string" },
+        "sku": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "material": { "type": "string" },
+        "size": { "type": "string" },
+        "color": { "type": "string" },
+        "moq": { "type": "number" },
+        "offerPrice": { "type": "number" },
+        "mrp": { "type": "number" },
+        "availableQuantity": { "type": "number" },
+        "deliveryTimeDays": { "type": "number" },
+        "images": { "type": "array" }
+      },
+      "required": ["id", "name", "articleCode", "sku", "category", "description", "material", "size", "color", "moq", "offerPrice", "mrp", "availableQuantity", "deliveryTimeDays", "images"]
+    },
+    "Catalogue": {
+      "title": "Catalogue",
+      "description": "A collection sharing link containing selected products and individual metrics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "views": { "type": "number" },
+        "ordersCount": { "type": "number" },
+        "productIds": { "type": "array" },
+        "visibility": { "type": "string" },
+        "password": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "analytics": { "type": "object" }
+      },
+      "required": ["id", "name", "description", "coverImage", "status", "createdAt", "updatedAt", "views", "ordersCount", "productIds"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "An order placed by a customer from a shared catalogue link",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "customerName": { "type": "string" },
+        "companyName": { "type": "string" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string" },
+        "items": { "type": "array" }
+      },
+      "required": ["id", "date", "customerName", "companyName", "totalAmount", "status", "items"]
+    },
+    "QuoteRequest": {
+      "title": "QuoteRequest",
+      "description": "An RFQ (Request for Quotation) submitted by a customer for low pricing on quantity requirements",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "customerName": { "type": "string" },
+        "targetPrice": { "type": "number" },
+        "status": { "type": "string" },
+        "product": { "type": "object" },
+        "quantity": { "type": "number" },
+        "specialRequirements": { "type": "string" }
+      },
+      "required": ["id", "date", "customerName", "targetPrice", "status", "product", "quantity", "specialRequirements"]
+    },
+    "Analytics": {
+      "title": "Analytics",
+      "description": "Global performance analytics dashboard counters",
+      "type": "object",
+      "properties": {
+        "totalCatalogues": { "type": "number" },
+        "totalOrders": { "type": "number" },
+        "pendingQuotations": { "type": "number" },
+        "revenue": { "type": "number" },
+        "recentEnquiries": { "type": "number" }
+      },
+      "required": ["totalCatalogues", "totalOrders", "pendingQuotations", "revenue", "recentEnquiries"]
+    }
+  },
+  "firestore": {
+    "factory/profile": {
+      "schema": { "$ref": "#/entities/FactoryProfile" },
+      "description": "Primary factory information"
+    },
+    "products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "List of articles/products belonging to the factory"
+    },
+    "catalogues/{catalogueId}": {
+      "schema": { "$ref": "#/entities/Catalogue" },
+      "description": "Sharing collections links of the factory"
+    },
+    "orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Wholesale buyer orders"
+    },
+    "quotes/{quoteId}": {
+      "schema": { "$ref": "#/entities/QuoteRequest" },
+      "description": "Request for quotes"
+    },
+    "analytics/overall": {
+      "schema": { "$ref": "#/entities/Analytics" },
+      "description": "Dashboard wide stats"
+    },
+    "customers/{customerId}": {
+      "schema": "CRMCustomer",
+      "description": "CRM Customer Profiles"
+    },
+    "leads/{leadId}": {
+      "schema": "CRMLead",
+      "description": "CRM Lead Profiles"
+    },
+    "crm_activities/{activityId}": {
+      "schema": "CRMActivity",
+      "description": "CRM Chronological Timeline of Actions"
+    },
+    "crm_notes/{noteId}": {
+      "schema": "CRMNote",
+      "description": "CRM notes added by the factory team"
+    },
+    "crm_tasks/{taskId}": {
+      "schema": "CRMTask",
+      "description": "CRM task management reminders of followups"
+    },
+    "communications/{commId}": {
+      "schema": "CRMCommunication",
+      "description": "CRM email and whatsapp outbound logs"
+    },
+    "transaction_logs/{logId}": {
+      "schema": "TransactionLog",
+      "description": "Centralized platform transaction traces"
+    },
+    "customer_documents/{docId}": {
+      "schema": "CustomerDocument",
+      "description": "CRM uploaded customer files"
+    },
+    "payment_logs/{logId}": {
+      "schema": "PaymentLog",
+      "description": "CRM payment details"
+    },
+    "audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "CRM admin audit operations log"
+    }
+  }
+}

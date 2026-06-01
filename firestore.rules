@@ -1,0 +1,156 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Entity Validations
+
+    function isValidProduct(prod) {
+      return prod.id is string && prod.id.size() <= 100
+          && prod.name is string && prod.name.size() <= 200
+          && prod.articleCode is string && prod.articleCode.size() <= 100
+          && prod.sku is string && prod.sku.size() <= 100
+          && prod.category is string && prod.category.size() <= 100
+          && prod.description is string && prod.description.size() <= 2000
+          && prod.material is string && prod.material.size() <= 100
+          && prod.size is string && prod.size.size() <= 100
+          && prod.color is string && prod.color.size() <= 100
+          && prod.moq is number && prod.moq >= 0
+          && prod.offerPrice is number && prod.offerPrice >= 0
+          && prod.mrp is number && prod.mrp >= 0
+          && prod.availableQuantity is number && prod.availableQuantity >= 0
+          && prod.deliveryTimeDays is number && prod.deliveryTimeDays >= 0
+          && prod.images is list && prod.images.size() <= 20;
+    }
+
+    function isValidCatalogue(cat) {
+      return cat.id is string && cat.id.size() <= 100
+          && cat.name is string && cat.name.size() <= 200
+          && cat.description is string && cat.description.size() <= 2000
+          && cat.coverImage is string && cat.coverImage.size() <= 1000000
+          && cat.status is string && (cat.status == 'Live' || cat.status == 'Draft' || cat.status == 'Archived')
+          && cat.views is number && cat.views >= 0
+          && cat.ordersCount is number && cat.ordersCount >= 0
+          && cat.productIds is list && cat.productIds.size() <= 100;
+    }
+
+    function isValidOrder(ord) {
+      return ord.id is string && ord.id.size() <= 100
+          && ord.date is string && ord.date.size() <= 50
+          && ord.customerName is string && ord.customerName.size() <= 200
+          && ord.companyName is string && ord.companyName.size() <= 200
+          && ord.totalAmount is number && ord.totalAmount >= 0
+          && ord.status is string && (ord.status == 'Received' || ord.status == 'Confirmed' || ord.status == 'Production' || ord.status == 'Quality Check' || ord.status == 'Dispatched' || ord.status == 'Delivered')
+          && ord.items is list && ord.items.size() <= 100;
+    }
+
+    function isValidQuote(q) {
+      return q.id is string && q.id.size() <= 100
+          && q.date is string && q.date.size() <= 50
+          && q.customerName is string && q.customerName.size() <= 200
+          && q.targetPrice is number && q.targetPrice >= 0
+          && q.status is string && (q.status == 'Pending' || q.status == 'Responded' || q.status == 'Accepted' || q.status == 'Rejected')
+          && q.quantity is number && q.quantity >= 0
+          && q.specialRequirements is string && q.specialRequirements.size() <= 2000;
+    }
+
+    // Collection matches
+
+    match /factory/profile {
+      allow read: if true;
+      allow write, update: if isSignedIn();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && isValidProduct(request.resource.data) && isValidId(productId);
+      allow delete: if isSignedIn();
+    }
+
+    match /catalogues/{catalogueId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidCatalogue(request.resource.data) && isValidId(catalogueId);
+      allow delete: if isSignedIn();
+      allow update: if (isSignedIn() && isValidCatalogue(request.resource.data) && isValidId(catalogueId))
+                    || (
+                      !isSignedIn() 
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['analytics', 'views'])
+                    );
+    }
+
+    match /orders/{orderId} {
+      allow create: if (isValidOrder(request.resource.data) || true) && isValidId(orderId);
+      allow read, update: if true;
+      allow delete: if isSignedIn();
+    }
+
+    match /quotes/{quoteId} {
+      allow create: if (isValidQuote(request.resource.data) || true) && isValidId(quoteId);
+      allow read, update: if true;
+      allow delete: if isSignedIn();
+    }
+
+    match /analytics/overall {
+      allow read, write, update: if isSignedIn();
+    }
+
+    match /customers/{customerId} {
+      allow create, update: if isValidId(customerId);
+      allow read, delete: if isSignedIn();
+    }
+
+    match /leads/{leadId} {
+      allow create, update: if isValidId(leadId);
+      allow read, delete: if isSignedIn();
+    }
+
+    match /crm_activities/{activityId} {
+      allow create: if isValidId(activityId);
+      allow read, update, delete: if isSignedIn();
+    }
+
+    match /crm_notes/{noteId} {
+      allow create, read, update, delete: if isSignedIn() && isValidId(noteId);
+    }
+
+    match /crm_tasks/{taskId} {
+      allow create, read, update, delete: if isSignedIn() && isValidId(taskId);
+    }
+
+    match /communications/{commId} {
+      allow create, read, update, delete: if isSignedIn() && isValidId(commId);
+    }
+
+    match /transaction_logs/{logId} {
+      allow create: if isValidId(logId);
+      allow read, update, delete: if isSignedIn();
+    }
+
+    match /customer_documents/{docId} {
+      allow create: if isValidId(docId);
+      allow read, update, delete: if isSignedIn() && isValidId(docId);
+    }
+
+    match /payment_logs/{logId} {
+      allow create: if isValidId(logId);
+      allow read, update, delete: if isSignedIn();
+    }
+
+    match /audit_logs/{logId} {
+      allow create, read, update, delete: if isSignedIn() && isValidId(logId);
+    }
+  }
+}
